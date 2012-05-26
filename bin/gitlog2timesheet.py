@@ -35,7 +35,7 @@ def gitlog(location = None):
         l.append(line)
     return l
 
-def logmessage(name = None, email = None, when = None, message = None, repo = None, commitfactor = 4):
+def logmessage(name = None, email = None, when = None, message = None, repo = None, commitfactor = 4, format="text"):
     logmessage = ""
     t=datetime.datetime.fromtimestamp(when)
     d=t-datetime.timedelta(hours=commitfactor)
@@ -47,9 +47,12 @@ def logmessage(name = None, email = None, when = None, message = None, repo = No
         else:
             projecttime[projectkey] = commitfactor
 
-    logmessage = "From "+d.ctime()+" to "+t.ctime() + "\n"
-    logmessage += "   "+name+" ("+email+") worked on "+ repo +"\n"
-    logmessage += "    and did the following: "+ message +"\n" 
+    if format == "text":
+        logmessage = "From "+d.ctime()+" to "+t.ctime() + "\n"
+        logmessage += "   "+name+" ("+email+") worked on "+ repo +"\n"
+        logmessage += "    and did the following: "+ message
+    elif format == "csv":
+        logmessage = d.ctime()+"|"+t.ctime()+"|"+unicode(commitfactor)+"|"+name+"|"+message
     return logmessage
 
 usage = "usage: %s path_to_git_repos" % sys.argv[0]
@@ -57,6 +60,7 @@ parser = OptionParser(usage)
 parser.add_option("-d", "--debug", action="store_true", dest="debug", help="output debug messages", default=False)
 parser.add_option("-w", "--commitfactor", dest="commitfactor", help="work time factor per commit, default is 4 hours",default=4, type="int")
 parser.add_option("-t", "--total", action="store_true", dest="total", help="total hours worked for each user per repository/project", default=False)
+parser.add_option("-f", "--outputformat", dest="format", help="output format text, csv (default is text)", default="text", type="string")
 
 (options, args) = parser.parse_args()
 
@@ -72,9 +76,13 @@ for repo in args:
             (name, email, when, message) = line.split("|")
         except:
             continue 
-        print logmessage(name=unicode(name), email=email, when=float(when), commitfactor = options.commitfactor, message=unicode(message), repo = os.path.basename(os.path.normpath(repo)))
+        print logmessage(name=unicode(name), email=email, when=float(when), commitfactor = options.commitfactor, message=unicode(message), repo = os.path.basename(os.path.normpath(repo)), format=options.format)
+
 
 
 if options.total:
     for x in projecttime:
-        print x + "->" + unicode(projecttime[x])+" hours."
+        if options.format == "text":
+            print x + "->" + unicode(projecttime[x])+" hours."
+        elif options.format == "csv":
+            print x.split(":")[0]+"|"+x.split(":")[1]+"|"+unicode(projecttime[x])
