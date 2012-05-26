@@ -39,7 +39,14 @@ def logmessage(name = None, email = None, when = None, message = None, repo = No
     logmessage = ""
     t=datetime.datetime.fromtimestamp(when)
     d=t-datetime.timedelta(hours=commitfactor)
-   
+
+    if options.total:
+        projectkey= repo+":"+name
+        if projectkey in projecttime:
+            projecttime[projectkey] += commitfactor
+        else:
+            projecttime[projectkey] = commitfactor
+
     logmessage = "From "+d.ctime()+" to "+t.ctime() + "\n"
     logmessage += "   "+name+" ("+email+") worked on "+ repo +"\n"
     logmessage += "    and did the following: "+ message +"\n" 
@@ -47,10 +54,14 @@ def logmessage(name = None, email = None, when = None, message = None, repo = No
 
 usage = "usage: %s path_to_git_repos" % sys.argv[0]
 parser = OptionParser(usage)
-parser.add_option("-d", "--debug", action="store_true" ,dest="debug", help="output debug messages", default=False)
+parser.add_option("-d", "--debug", action="store_true", dest="debug", help="output debug messages", default=False)
 parser.add_option("-w", "--commitfactor", dest="commitfactor", help="work time factor per commit, default is 4 hours",default=4, type="int")
+parser.add_option("-t", "--total", action="store_true", dest="total", help="total hours worked for each user per repository/project", default=False)
 
 (options, args) = parser.parse_args()
+
+if options.total:
+    projecttime = {}
 
 for repo in args:
     val = gitlog(location = repo)
@@ -63,4 +74,7 @@ for repo in args:
             continue 
         print logmessage(name=unicode(name), email=email, when=float(when), commitfactor = options.commitfactor, message=unicode(message), repo = os.path.basename(os.path.normpath(repo)))
 
-        
+
+if options.total:
+    for x in projecttime:
+        print x + "->" + unicode(projecttime[x])+" hours."
