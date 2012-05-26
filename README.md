@@ -18,7 +18,7 @@ Sample output
 -------------
 
 
-        gitlog2timesheet.py /home/adulau/git/forban
+        gitlog2timesheet.py -w 1 /home/adulau/git/forban
 
         From Mon Apr  9 15:12:02 2012 to Mon Apr  9 16:12:02 2012
            Alexandre Dulaunoy (a@foo.be) worked on forban
