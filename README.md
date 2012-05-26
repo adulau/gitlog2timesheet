@@ -10,6 +10,8 @@ project or alike.
 Usage
 -----
 
+        Usage: gitlog2timesheet.py path_to_git_repos
+
         Options:
           -h, --help            show this help message and exit
           -d, --debug           output debug messages
@@ -17,6 +19,8 @@ Usage
                                 work time factor per commit, default is 4 hours
           -t, --total           total hours worked for each user per
                                 repository/project
+          -f FORMAT, --outputformat=FORMAT
+                                output format text, csv (default is text)
 
 
 Sample output
