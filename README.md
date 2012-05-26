@@ -3,16 +3,21 @@ gilog2timesheet
 
 gitlog2timesheet is a tool to general timesheet from git logs. 
 
+The hours spent per user per repository can be displayed. This can
+be useful if you have to complete regular time sheet for european research
+project or alike.
+
 Usage
 -----
-
-        Usage: gitlog2timesheet.py path_to_git_repo(s) ...
 
         Options:
           -h, --help            show this help message and exit
           -d, --debug           output debug messages
           -w COMMITFACTOR, --commitfactor=COMMITFACTOR
                                 work time factor per commit, default is 4 hours
+          -t, --total           total hours worked for each user per
+                                repository/project
+
 
 Sample output
 -------------
