@@ -68,6 +68,8 @@ if options.total:
     projecttime = {}
 
 for repo in args:
+    if not os.path.exists(repo):
+        continue
     val = gitlog(location = repo)
     if options.debug:
         print val
