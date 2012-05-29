@@ -61,6 +61,7 @@ parser.add_option("-d", "--debug", action="store_true", dest="debug", help="outp
 parser.add_option("-w", "--commitfactor", dest="commitfactor", help="work time factor per commit, default is 4 hours",default=4, type="int")
 parser.add_option("-t", "--total", action="store_true", dest="total", help="total hours worked for each user per repository/project", default=False)
 parser.add_option("-f", "--outputformat", dest="format", help="output format text, csv (default is text)", default="text", type="string")
+parser.add_option("-u", "--user", dest="user", help="limit timesheet to the user specified", default=None, type="string")
 
 (options, args) = parser.parse_args()
 
@@ -77,8 +78,9 @@ for repo in args:
         try:
             (name, email, when, message) = line.split("|")
         except:
-            continue 
-        print logmessage(name=unicode(name), email=email, when=float(when), commitfactor = options.commitfactor, message=unicode(message), repo = os.path.basename(os.path.normpath(repo)), format=options.format)
+            continue
+        if name == options.user or options.user is None:
+            print logmessage(name=unicode(name), email=email, when=float(when), commitfactor = options.commitfactor, message=unicode(message), repo = os.path.basename(os.path.normpath(repo)), format=options.format)
 
 
 

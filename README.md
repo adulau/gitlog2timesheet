@@ -21,6 +21,7 @@ Usage
                                 repository/project
           -f FORMAT, --outputformat=FORMAT
                                 output format text, csv (default is text)
+          -u USER, --user=USER  limit timesheet to the user specified
 
 
 Sample output
