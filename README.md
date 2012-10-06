@@ -22,6 +22,8 @@ Usage
           -f FORMAT, --outputformat=FORMAT
                                 output format text, csv (default is text)
           -u USER, --user=USER  limit timesheet to the user specified
+          -p, --previouslog     user previous date, or work time factor if less, 
+                                for commit duration
 
 
 Sample output

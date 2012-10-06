@@ -38,21 +38,40 @@ def gitlog(location = None):
 def logmessage(name = None, email = None, when = None, message = None, repo = None, commitfactor = 4, format="text"):
     logmessage = ""
     t=datetime.datetime.fromtimestamp(when)
-    d=t-datetime.timedelta(hours=commitfactor)
-
+    nonecalculated = True 
+    if options.previouslog:
+        prevlogkey = name
+        if prevlogkey in prevlogs:
+            nonecalculated = False
+            d=max(prevlogs[prevlogkey],t-datetime.timedelta(hours=commitfactor))
+            #print unicode(prevlogs[prevlogkey])+"|"+unicode(t-datetime.timedelta(hours=commitfactor))+"|"+unicode(d)
+            
+    if nonecalculated:
+        d=t-datetime.timedelta(hours=commitfactor)
+        
     if options.total:
-        projectkey= repo+":"+name
-        if projectkey in projecttime:
-            projecttime[projectkey] += commitfactor
+        if options.previouslog:
+            timetoadd=((t-d).seconds/3600.0)
         else:
-            projecttime[projectkey] = commitfactor
-
+            timetoadd=commitfactor
+            
+        projectkey= repo+":"+name
+        
+        if projectkey in projecttime:
+            projecttime[projectkey] += timetoadd
+        else:
+            projecttime[projectkey] = timetoadd
+            
+    if options.previouslog:
+        prevlogkey= name
+        prevlogs[prevlogkey]=t
+        
     if format == "text":
         logmessage = "From "+d.ctime()+" to "+t.ctime() + "\n"
         logmessage += "   "+name+" ("+email+") worked on "+ repo +"\n"
         logmessage += "    and did the following: "+ message
     elif format == "csv":
-        logmessage = d.ctime()+"|"+t.ctime()+"|"+unicode(commitfactor)+"|"+name+"|"+message
+        logmessage = d.ctime()+"|"+t.ctime()+"|"+unicode(round(timetoadd,2))+"|"+name+"|"+message
     return logmessage
 
 usage = "usage: %s path_to_git_repos" % sys.argv[0]
@@ -62,19 +81,23 @@ parser.add_option("-w", "--commitfactor", dest="commitfactor", help="work time f
 parser.add_option("-t", "--total", action="store_true", dest="total", help="total hours worked for each user per repository/project", default=False)
 parser.add_option("-f", "--outputformat", dest="format", help="output format text, csv (default is text)", default="text", type="string")
 parser.add_option("-u", "--user", dest="user", help="limit timesheet to the user specified", default=None, type="string")
+parser.add_option("-p", "--previouslog", action="store_true", dest="previouslog", help="user previous date, or work time factor if less, for commit duration", default=False)
 
 (options, args) = parser.parse_args()
 
 if options.total:
     projecttime = {}
-
+    
+if options.previouslog:
+    prevlogs={}
+    
 for repo in args:
     if not os.path.exists(repo):
         continue
     val = gitlog(location = repo)
     if options.debug:
         print val
-    for line in val:
+    for line in reversed(val):
         try:
             (name, email, when, message) = line.split("|")
         except:
@@ -87,6 +110,6 @@ for repo in args:
 if options.total:
     for x in projecttime:
         if options.format == "text":
-            print x + "->" + unicode(projecttime[x])+" hours."
+            print x + "->" + unicode(int(round(projecttime[x],0)))+" hours."
         elif options.format == "csv":
-            print x.split(":")[0]+"|"+x.split(":")[1]+"|"+unicode(projecttime[x])
+            print x.split(":")[0]+"|"+x.split(":")[1]+"|"+unicode(int(round(projecttime[x],0)))
